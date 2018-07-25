@@ -1,0 +1,29 @@
+BODY, BODY #main_content_wrap {background:white}
+#header_wrap {background-color: #f2f2f2 !important}
+/*
+#header_wrap .inner :not(#forkme) {display:none}
+*/
+#forkme {padding:4px 45px 5px 11px!important; }
+#main_content_wrap {border-top:0 !important}
+{% if false %} /*title stuff -----------------------------------------------------------*/ {% endif %}
+#main_content h1:first-of-type {font-size:6em; text-align:center}
+#main_content h1:first-of-type + *{text-align:center; 
+	font-size:1.2em; margin:auto; line-height:1.3em;
+	letter-spacing: -1px;
+}
+
+/*
+hr{border: 1px inset #373737}
+*/
+#--abstract, #--abstract + p { text-align:center}
+
+/*
+#vee-is, #vee-implements, #abstract {margin-bottom:0}
+*/
+#abstract+*, #abstract+*+* , #abstract+*+*+*, #abstract+*+*+*+*,
+#vee-is+*, #vee-is+*+*, #vee-is+*+*+*, #vee-is+*+*+*+*,
+#vee-implements+*, #vee-implements+*+*, #vee-implements+*+*+*, #vee-implements+*+*+*+*
+	{margin-top:0;margin-bottom:0}
+
+#main_content > *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):not(hr) {margin-left: 3ex}
+

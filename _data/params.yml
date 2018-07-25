@@ -1,0 +1,24 @@
+/hello_world-poly.html:
+  code-width: 122ex
+/hello_world.html:
+  code-width: 124ex
+/collide.html:
+  code-width: 121ex 
+/diamond.html:
+  code-width: 113ex
+/replacing_virtual_functions.html:
+  code-width: 112ex
+/covariant_return_types.html:
+  code-width: 98ex
+/call_resolution.html:
+  code-width: 112ex
+/make_shared.html:
+  code-width: 102ex
+/vt-vars.html:
+  code-width: 98ex
+/runtime_errors.html:
+  code-width: 113ex
+/xxx.html:
+  code-width: 134ex
+/hello_world-unary-poly.html:
+  code-width: 104ex
