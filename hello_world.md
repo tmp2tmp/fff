@@ -62,66 +62,66 @@ Specifying this is through a <strong>co-class</strong> defining three parts:
 ```c++
 //file: hello_world-poly.cc
 #include "vane.h"   //required
-#include <stdio.h>
 using std::tuple;
-    
 
-struct Base         { virtual ~Base(){} };  //required: polymorphic base
+
+struct Base         { virtual ~Base(){} };	//required: polymorphic base
 struct Hello : Base { };
 struct World : Base { };
 
 
 ////////////////////////////////////////////////////////////////////////////////
-//co-class that defines the traits & function set for the multi_func
+//co-class: 
+//     defines the traits & function set for the multi_func
 struct Fx
 {
-    //declares the type signature of the multi_func
-    using type = void (const char*, Base&);
-                     // polymorphic Base& is the virtual parameter
-                     //    *,&,&& are supported;   also return types are supported
+	//declares the type signature of the multi_func
+	using type = void (const char*, Base&&);
+				     // polymorphic Base&& is the virtual parameter
+					 //    *, &, && types are supported
 
-    //argument type selectors:  eventually confines the specialized function set
-    using domains = tuple<
-        tuple <Base, Hello, World> //types for Base& must be one of them or their subclasses
-        >;
+	//argument type selectors:  eventually confines the specialized function set
+	using domains = tuple<
+		tuple <Base, Hello, World> //types that the virtual parameter Base&& can be of
+		>;
 
-//specify argument-specialized functions:
-    void operator() (const char *p, Base  &) { printf("%12s --> Base??\n", p);  } //f0
-    void operator() (const char *p, Hello &) { printf("%12s --> Hello \n", p);  } //f1
-    void operator() (const char *p, World &) { printf("%12s --> World \n", p);  } //f2
+	//argument-type-specialized functions:
+	void operator() (const char *p, Base  &&) { printf("%12s --> Base?\n", p);  } //f0
+	void operator() (const char *p, Hello &&) { printf("%12s --> Hello\n", p);  } //f1
+	void operator() (const char *p, World &&) { printf("%12s --> World\n", p);  } //f2
 };
 
 
 ////////////////////////////////////////////////////////////////////////////////
 template<typename Func>
-void call_test_baseTyped(Func *func, const char *p, Base &base) {
-    (*func) (p, base);
+void call_test_baseTyped(Func *func, const char *p, Base &&base) {
+	(*func) (p, std::move(base));
 }
 
 int main() try 
 {
-    vane::multi_func <Fx>    multi_func;
-    vane::virtual_func <void (const char*, Base&)>
+	vane::mf_init();
+
+	vane::multi_func <Fx>    multi_func;
+	vane::virtual_func <void (const char*, Base&&)>
                             *virtual_func = &multi_func;
 
-    Fx  func;  //ordinary function object
+	Fx  fx;  //ordinary function object
 
 
-    Hello  hello; 
-    World  world;
-
-    call_test_baseTyped (       &func,         "func", hello);
-    call_test_baseTyped (       &func,         "func", world);
-    call_test_baseTyped ( &multi_func,   "multi_func", hello);
-    call_test_baseTyped ( &multi_func,   "multi_func", world);
-    call_test_baseTyped (virtual_func, "virtual_func", hello);
-    call_test_baseTyped (virtual_func, "virtual_func", world);
+	call_test_baseTyped (	      &fx,		     "fx", Hello());
+	call_test_baseTyped (	      &fx,		     "fx", World());
+	call_test_baseTyped ( &multi_func,   "multi_func", Hello());
+	call_test_baseTyped ( &multi_func,   "multi_func", World());
+	call_test_baseTyped (virtual_func, "virtual_func", Hello());
+	call_test_baseTyped (virtual_func, "virtual_func", World());
 }
 catch(const std::exception &e) { printf("\nexception : %s", e.what()); }
 
+
 /* output **********************************************************************
-        func --> Base??
-        func --> Base??
+        func --> Base?
+        func --> Base?
   multi_func --> Hello 
   multi_func --> World 
 virtual_func --> Hello 
@@ -132,155 +132,180 @@ virtual_func --> World
 ```c++
 //file: hello_world-virt.cc
 #include "vane.h"   //required
-#include <stdio.h>
-using std::tuple;
-using vane::_virtual;  //for _virtual <Base>
+using vane::virtual_;
 
-struct Base         { virtual ~Base(){} };  //required: polymorphic base
+struct Base         { virtual ~Base(){} };	//required: polymorphic base
 struct Hello : Base { };
 struct World : Base { };
 
 
 ////////////////////////////////////////////////////////////////////////////////
-//co-class that defines the traits & function set for the multi_func
+//co-class: 
+//     defines the traits & function set for the multi_func
 struct Fx
 {
-    //declares the type signature of the multi_func
-    using type = void (const char*, _virtual<Base>*);
-                     // _virtual<Base>* is the virtual parameter
-                     //    currently only pointer types are supported; return types are supported
+	//function signature of the multi_func
+	using type = void (const char*,  const virtual_<Base>*);
+				     // virtual_<Base>* : virtual parameter
+					 //    *, &, && types are supported
 
-    //argument type selectors:  eventually confines the specialized function set
-    using domains = tuple<
-        tuple <Base, Hello, World> //types for _virtual<Base>* must be one of them or their subclasses
-        >;
+	//argument type selector:  eventually confines the specialized function set
+	using domains = std::tuple<
+		std::tuple <Base, Hello, World> //types which the virtual parameter `virtual_<Base>*' can be of
+		>;
 
-//specify argument-specialized functions:
-    void operator() (const char *p, Base* ) { printf("%12s --> Base??\n", p);  } //f0
-    void operator() (const char *p, Hello*) { printf("%12s --> Hello \n", p);  } //f1
-    void operator() (const char *p, World*) { printf("%12s --> World \n", p);  } //f2
+	//argument-type-specialized functions:
+	void operator() (const char *p, const Base  *) { printf("%12s --> Base?\n", p);  } //f0
+	void operator() (const char *p, const Hello *) { printf("%12s --> Hello\n", p);  } //f1
+	void operator() (const char *p, const World *) { printf("%12s --> World\n", p);  } //f2
 };
 
 
 ////////////////////////////////////////////////////////////////////////////////
 template<typename Func>
-void call_test_baseTyped(Func *func, const char *p, _virtual<Base> *base) {
-    (*func) (p, base);
+void call_test_baseTyped(Func *func, const char *p, const virtual_<Base> *babe) {
+	(*func) (p, babe);
 }
 
-void call_test_baseTyped(Fx *func, const char *p, Base *base) {
-    (*func) (p, b);
+void call_test_baseTyped(Fx *func, const char *p, const Base *base) {
+	(*func) (p, base);
 }
 
 int main() try 
 {
-    vane::multi_func <Fx>    multi_func;
-    vane::virtual_func <void (const char*, _virtual<Base>*)>
-                            *virtual_func = &multi_func;
+	vane::mf_init();
 
-    Fx  func;  //ordinary function object
+	vane::multi_func <Fx>    multi_func;
+	vane::virtual_func <void (const char*, const virtual_<Base>*)>
+		                    *virtual_func = &multi_func;
+
+	Fx  fx;  //ordinary function object
 
 
-    _virtual<Base>::of<Hello>  hello; 
-    _virtual<Base>::of<World>  world;
+	virtual_<Base>::of<Hello>  hello; 
+	virtual_<Base>::of<World>  world;
 
-    call_test_baseTyped (       &func,         "func", &hello);   //hello is compatible
-    call_test_baseTyped (       &func,         "func", &world);
-    call_test_baseTyped ( &multi_func,   "multi_func", &hello);
-    call_test_baseTyped ( &multi_func,   "multi_func", &world);
-    call_test_baseTyped (virtual_func, "virtual_func", &hello);
-    call_test_baseTyped (virtual_func, "virtual_func", &world);
+	call_test_baseTyped (		  &fx,		     "fx", &hello);
+	call_test_baseTyped (	      &fx,		     "fx", &world);
+	call_test_baseTyped ( &multi_func,   "multi_func", &hello);
+	call_test_baseTyped ( &multi_func,   "multi_func", &world);
+	call_test_baseTyped (virtual_func, "virtual_func", &hello);
+	call_test_baseTyped (virtual_func, "virtual_func", &world);
 }
 catch(const std::exception &e) { printf("\nexception : %s", e.what()); }
 
+
 /* output **********************************************************************
-        func --> Base??
-        func --> Base??
-  multi_func --> Hello 
-  multi_func --> World 
-virtual_func --> Hello 
-virtual_func --> World 
-*/
+          fx --> Base?
+          fx --> Base?
+  multi_func --> Hello
+  multi_func --> World
+virtual_func --> Hello
+virtual_func --> World
+*/ 
 ```
 
 ```c++
-//file: hello_world-varg.cc
+//file: hello_world-var.cc
 #include "vane.h"   //required
-#include <stdio.h>
 using std::tuple;
+#define	____	puts("---------------------------------------------------------------");
 
 
 struct Hello { };
 struct World { };
 
-using varg = vane::varg <Hello, World, int, std::string>;  //group arbitrarily
+using var = vane::var<>;	//anonymous var<>
 
 ////////////////////////////////////////////////////////////////////////////////
-//co-class that defines the traits & function set for the multi_func
+//co-class: 
+//     defines the traits & function set for the multi_func
 struct Fx
 {
-    //declares the type signature of the multi_func
-    using type = void (const char*, varg*);
-                     // varg* is the virtual parameter
-                     //    currently only pointer types are supported; return types are supported
+	//function signature of the multi_func
+	using type = void (const char*, const var&);
+				     // var& : virtual parameter of type vane::var<>
+					 //    *, &, && types are supported
 
-    //argument type selectors:  eventually confines the specialized function set
-    using domains = tuple<
-        tuple <Hello, World, int, std::string> //types for varg* must be one of them or their subclasses
-        >;
+	//argument type selectors:  eventually confines the specialized function set
+	using domains = tuple<
+		tuple <Hello, World, int, std::string> //types which the virtual parameter `var&' can have
+		>;
 
-//specify argument-specialized functions:
-    void operator() (const char *p, Hello*)         { printf("%14s --> Hello \n", p);  } //f0
-    void operator() (const char *p, World*)         { printf("%14s --> World \n", p);  } //f1
-    void operator() (const char *p, int *i)         { printf("%14s --> %d\n", p, *i);  } //f2
-    void operator() (const char *p, std::string *s) { printf("%14s --> %s\n", p, s->c_str());  } //f3
+	//argument-type-specialized functions:
+	void operator() (const char *p, const Hello&)         { printf("%21s --> Hello \n", p);  } //f0
+	void operator() (const char *p, const World&)         { printf("%21s --> World \n", p);  } //f1
+	void operator() (const char *p, const int &i)         { printf("%21s --> %d\n", p, i);   } //f2
+	void operator() (const char *p, const std::string &s) { printf("%21s --> %s\n", p, s.c_str());  } //f3
 };
 
 
 ////////////////////////////////////////////////////////////////////////////////
-template<typename Func>
-void call_test_uniformTyped(Func *func, const char *p, varg *varg) {
-    (*func) (p, varg);
+void call_mf_uniformTyped(
+	vane::multi_func <Fx> *func,   const char *p, const var &v)
+{
+	(*func) (p, v);
 }
+
+void call_vf_uniformTyped(
+	vane::virtual_func <void (const char*, const var&)>  *func,
+	const char *p,  const var &v)
+{
+	(*func) (p, v);
+}
+
 
 int main() try 
 {
-    vane::multi_func <Fx>    multi_func;
-    vane::virtual_func <void (const char*, varg*)>
-                            *virtual_func = &multi_func;
+	vane::mf_init();
 
-    Fx  func;  //ordinary function object
+	vane::multi_func <Fx>    multi_func;
+	vane::virtual_func <void (const char*, const var&)>
+		                    *virtual_func = &multi_func;
+
+	Fx  fx;  //ordinary function object
 
 
-    varg::of<Hello>   hello; 
-    varg::of<World>   world;
-    varg::of<int>          number{3};
-    varg::of<std::string>  string{"ways of multi-functioning"};
+	var::of<Hello>	hello; 
+	var::of<World>	world;
+	var::of<int>			number{3};
+	var::of<std::string>	string{"ways of multi-functioning"};
 
-    call_test_uniformTyped ( &multi_func,   "multi_func", &hello);
-    call_test_uniformTyped ( &multi_func,   "multi_func", &world);
-    call_test_uniformTyped (virtual_func, "virtual_func", &hello);
-    call_test_uniformTyped (virtual_func, "virtual_func", &world);
-    call_test_uniformTyped ( &multi_func,   "multi_func", &number);
-    call_test_uniformTyped (virtual_func, "virtual_func", &string);
-
-    func ("func (&hello )", &hello);        //varg<>'s of struct/class types are compatible with the existing code
-    func ("func (&number)", &(int&)number); //varg<>'s of non-struct/class types are not compatible; need type-cast
-    func ("func (&string)", &string);
+	//fx cannot be called with arguments uniform-typed
+											  fx ("fx (hello )", hello);
+											  fx ("fx (world )", world);
+											  fx ("fx (number)", number);
+											  fx ("fx (string)", string);
+____
+	call_mf_uniformTyped ( &multi_func,   "multi_func (hello )", hello);
+	call_mf_uniformTyped ( &multi_func,   "multi_func (world )", world);
+	call_mf_uniformTyped ( &multi_func,   "multi_func (number)", number);
+	call_mf_uniformTyped ( &multi_func,   "multi_func (string)", string);
+____
+	call_vf_uniformTyped (virtual_func, "virtual_func (hello )", hello);
+	call_vf_uniformTyped (virtual_func, "virtual_func (world )", world);
+	call_vf_uniformTyped (virtual_func, "virtual_func (number)", number);
+	call_vf_uniformTyped (virtual_func, "virtual_func (string)", string);
 }
 catch(const std::exception &e) { printf("\nexception : %s", e.what()); }
 
+
 /* output **********************************************************************
-    multi_func --> Hello 
-    multi_func --> World 
-  virtual_func --> Hello 
-  virtual_func --> World 
-    multi_func --> 3
-  virtual_func --> ways of multi-functioning
-func (&hello ) --> Hello 
-func (&number) --> 3
-func (&string) --> ways of multi-functioning
-*/
+          fx (hello ) --> Hello 
+          fx (world ) --> World 
+          fx (number) --> 3
+          fx (string) --> ways of multi-functioning
+---------------------------------------------------------------
+  multi_func (hello ) --> Hello 
+  multi_func (world ) --> World 
+  multi_func (number) --> 3
+  multi_func (string) --> ways of multi-functioning
+---------------------------------------------------------------
+virtual_func (hello ) --> Hello 
+virtual_func (world ) --> World 
+virtual_func (number) --> 3
+virtual_func (string) --> ways of multi-functioning
+*/ 
 ```
 
 
