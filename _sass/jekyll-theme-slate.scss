@@ -540,7 +540,7 @@ pre.highlight {
 pre.highlight:not(.collapse) { margin-bottom: 100px}
 
 
-pre.highlight.collapse { padding: 0px !important; height: 26px !important; overflow: hidden !important; border:0 !important; width: 530px ! important; }
+pre.highlight.collapse { padding: 0px !important; height: 26px !important; overflow: hidden !important; border:0px solid #f8f8f8 !important; width: 530px ! important; }
 /*.highlight.collapse * {color:black; font-weight:bold}*/
 
 /*
