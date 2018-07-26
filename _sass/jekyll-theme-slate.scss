@@ -532,7 +532,7 @@ body { background: #f2f2f2}
 .--highlight.collapse:hover {font-weight: bold}
 */
 pre.highlight { 
-	background:white;
+	/*background:white;*/
 	border:10px solid #f8f8f8;
 	border-bottom-width:9px;
 	padding: 4px 10px 0 7px;
@@ -555,8 +555,11 @@ pre.highlight.collapse { padding: 0px !important; height: 26px !important; overf
 
 /*----------------------------------------------------------------------*/
 /*.highlight code*/
-pre.highlight code { display: inline-table; padding: 0px 8px 10px 3px }
+pre.highlight code { padding: 0px 8px 10px 3px }
+/*
+pre.highlight code { display: inline-table; }
 pre.highlight.collapse code { display: block; }
+*/
 
 
 /*first line of .highlight*/
