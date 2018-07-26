@@ -486,7 +486,7 @@ Small Device Styles
 
 /*xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 /*syntax highlight*/
-pre.highlight, pre.highlight * { font-family: Consolas !important; background:white}
+pre.highlight, pre.highlight * { font-family: Consolas !important}
 
 
 HEADER{padding-top:1ex!important; padding-bottom:0!important}
@@ -528,7 +528,7 @@ body { background: #f2f2f2}
 .--highlight.collapse { padding: 0px; height: 26px ! important; overflow: hidden; border: 10px solid gray; width: 530px ! important; }
 .--highlight.collapse:hover {font-weight: bold}
 */
-pre.highlight { cursor: pointer; overflow-y:hidden; background:#f8f8f8; transition: height,0.1s, width, 0.25s; }
+pre.highlight { cursor: pointer; overflow-y:hidden; transition: height,0.1s, width, 0.25s; }
 pre.highlight:not(.collapse) { margin-bottom: 100px}
 /*
 .highlight { cursor: pointer; overflow-y:hidden; transition: height,0.1s, width, 0.2s; }
