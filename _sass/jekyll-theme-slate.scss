@@ -485,6 +485,9 @@ Small Device Styles
 }
 
 /*xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+/*xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+/*xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+/*xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 /*syntax highlight*/
 pre.highlight, pre.highlight * { font-family: Consolas !important}
 
@@ -536,6 +539,7 @@ pre.highlight {
 	border:10px solid #f8f8f8;
 	border-bottom-width:9px;
 	padding-bottom: 0;
+	padding-left:7px;
 	cursor: pointer; overflow-y:hidden; transition: height,0.1s, width, 0.25s; }
 pre.highlight:not(.collapse) { margin-bottom: 100px}
 /*
@@ -545,6 +549,11 @@ pre.highlight:not(.collapse) { margin-bottom: 100px}
 .--highlight { cursor: pointer; overflow-y:hidden; transition: height,0.1s; }
 .--highlight { cursor: pointer; overflow-y:hidden; transition: height,0.06s; }
 */
+
+
+/*.highligh code*/
+pre.highlight code { display: inline-table; padding-right:8px }
+
 
 /*first line of .highlight*/
 .highlight.collapse { padding: 0px; height: 26px ! important; overflow: hidden; border:0; width: 530px ! important; }
