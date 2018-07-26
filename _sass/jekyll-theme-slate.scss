@@ -535,7 +535,7 @@ pre.highlight {
 	/*background:white;*/
 	border:10px solid #f8f8f8;
 	border-bottom-width:9px;
-	padding: 4px 10px 0 7px;
+	padding: 0;
 	cursor: pointer; overflow-y:hidden; transition: height,0.1s, width, 0.25s; }
 pre.highlight:not(.collapse) { margin-bottom: 100px}
 
@@ -555,7 +555,7 @@ pre.highlight.collapse { padding: 0px !important; height: 26px !important; overf
 
 /*----------------------------------------------------------------------*/
 /*.highlight code*/
-pre.highlight code { padding: 0px 8px 10px 3px }
+pre.highlight code {margin:0; padding: 0px 8px 10px 3px }
 /*
 pre.highlight code { display: inline-table; }
 pre.highlight.collapse code { display: block; }
