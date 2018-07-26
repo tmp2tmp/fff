@@ -536,12 +536,15 @@ pre {
 }
 pre.highlight { 
 	background:white;
-	border:10px solid #f8f8f8;
 	border-bottom-width:9px;
-	padding-bottom: 0;
-	padding-left:7px;
+	padding: 4px 10px 0 7px;
 	cursor: pointer; overflow-y:hidden; transition: height,0.1s, width, 0.25s; }
 pre.highlight:not(.collapse) { margin-bottom: 100px}
+
+
+pre.highlight.collapse { padding: 0px !important; height: 26px !important; overflow: hidden; border:0; width: 530px ! important; }
+/*.highlight.collapse * {color:black; font-weight:bold}*/
+
 /*
 .highlight { cursor: pointer; overflow-y:hidden; transition: height,0.1s, width, 0.2s; }
 .highlight { cursor: pointer; overflow-y:hidden; transition: height,0.1s, width, 0.3s; }
@@ -551,13 +554,13 @@ pre.highlight:not(.collapse) { margin-bottom: 100px}
 */
 
 
-/*.highligh code*/
-pre.highlight code { display: inline-table; padding-right:8px }
+
+/*----------------------------------------------------------------------*/
+/*.highlight code*/
+pre.highlight code { display: inline-table; padding-right:8px; padding-top:0; }
 
 
 /*first line of .highlight*/
-.highlight.collapse { padding: 0px; height: 26px ! important; overflow: hidden; border:0; width: 530px ! important; }
-/*.highlight.collapse * {color:black; font-weight:bold}*/
 pre.highlight code > :first-child {color:black; font-weight:bold}
 pre.highlight:not(.collapse) code > :first-child {background: #f1f1f1}
 .highlight {background: inherit}
