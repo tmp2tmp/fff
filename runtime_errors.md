@@ -80,6 +80,8 @@ void call (vane::multi_func<Fx> &mfunc, int &i, const A &a, const O &x);
 
 int main()
 {
+    vane::mf_init();
+
     vane::multi_func<Fx>  mfunc;
     Fx                    fx;   //ordinary function object
 
@@ -103,8 +105,6 @@ int main()
 template <typename Fx>
 void call (vane::multi_func<Fx> &mfunc, int &i, const A &a, const O &x) try
 {
-    vane::mf_init();
-
     mfunc (i, a, x);
 
     //trivial check at compile time
