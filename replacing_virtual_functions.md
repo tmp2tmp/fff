@@ -16,9 +16,9 @@ pointed by vane::virtual\_func pointers.
 
 
 struct Shape {
-	virtual ~Shape() {}   //polymorphic base is required
-	Shape(const char *c = "shape") : name(c) {}
-	const char *name;
+    virtual ~Shape() {}   //polymorphic base is required
+    Shape(const char *c = "shape") : name(c) {}
+    const char *name;
 };
 
 using Collide_func = vane::virtual_func <void(Shape&, Shape&)>;
@@ -29,26 +29,26 @@ using Collide_func = vane::virtual_func <void(Shape&, Shape&)>;
 ////////////////////////////////////////////////////////////////////////////////
 /* inheritance hierarchy
 
-		   / Rectangle
-	Shape +- Ellipse
-		   \ Polygon
+           / Rectangle
+    Shape +- Ellipse
+           \ Polygon
 
-	_ShapeCollision +- _Fx_Big --- _Fx_Bigger
-					 \ _Fx_Bong
+    _ShapeCollision +- _Fx_Big --- _Fx_Bigger
+                     \ _Fx_Bong
 */
 ////////////////////////////////////////////////////////////////////////////////
 struct _ShapeCollision
 {
-	using type = Collide_func::type;	//function's type
-//	or
-//	using type = void(Shape&, Shape&);
+    using type = Collide_func::type;    //function's type
+//  or
+//  using type = void(Shape&, Shape&);
 
-	_ShapeCollision(const char *version) : api_version(version) {}
-	const char *api_version;
+    _ShapeCollision(const char *version) : api_version(version) {}
+    const char *api_version;
 
-	void _collide(Shape &p, Shape &q, const char *tag) {  //util function
-		printf("(%-9s %9s) --> %14s::%s\n", p.name, q.name, api_version, tag);
-	}
+    void _collide(Shape &p, Shape &q, const char *tag) {  //util function
+        printf("(%-9s %9s) --> %14s::%s\n", p.name, q.name, api_version, tag);
+    }
 };
 
 
@@ -60,22 +60,22 @@ struct Rectangle : Shape { Rectangle(const char *c = "rectangle") : Shape(c) {} 
 struct Ellipse   : Shape { Ellipse  (const char *c = "ellipse"  ) : Shape(c) {} };
 
 namespace detail {
-	struct _Fx_Big : protected _ShapeCollision
-	{
-		_Fx_Big (const char *version="collide big") : _ShapeCollision(version) {}
+    struct _Fx_Big : protected _ShapeCollision
+    {
+        _Fx_Big (const char *version="collide big") : _ShapeCollision(version) {}
 
-		using _ShapeCollision::type;	//function's type
+        using _ShapeCollision::type;    //function's type
 
-		using domains = std::tuple <  	//argument type domains
-						std::tuple <Rectangle, Ellipse>,
-						std::tuple <Rectangle, Ellipse>
-						>;
+        using domains = std::tuple <    //argument type domains
+                        std::tuple <Rectangle, Ellipse>,
+                        std::tuple <Rectangle, Ellipse>
+                        >;
 
-		//specializations: Fx's
-		void operator() (Rectangle &p, Rectangle &q) { _collide(p,q, "fRR"); }
-		void operator() (Ellipse   &p, Ellipse   &q) { _collide(p,q, "fEE"); }
-		void operator() (Rectangle &p, Ellipse   &q) { _collide(p,q, "fRE"); }
-	};
+        //specializations: Fx's
+        void operator() (Rectangle &p, Rectangle &q) { _collide(p,q, "fRR"); }
+        void operator() (Ellipse   &p, Ellipse   &q) { _collide(p,q, "fEE"); }
+        void operator() (Rectangle &p, Ellipse   &q) { _collide(p,q, "fRE"); }
+    };
 }
 using Collide_Big = vane::multi_func <detail::_Fx_Big>;
 
@@ -84,19 +84,19 @@ using Collide_Big = vane::multi_func <detail::_Fx_Big>;
 ////////////////////////////////////////////////////////////////////////////////
 //Bigger Collision
 namespace detail {
-	struct _Fx_Bigger : protected _Fx_Big
-	{
-		_Fx_Bigger (const char *ver="collide bigger") : _Fx_Big(ver) {}
+    struct _Fx_Bigger : protected _Fx_Big
+    {
+        _Fx_Bigger (const char *ver="collide bigger") : _Fx_Big(ver) {}
 
-		using _Fx_Big::type;
-		using _Fx_Big::domains;  //use the same domains
+        using _Fx_Big::type;
+        using _Fx_Big::domains;  //use the same domains
 
-		//specializations:
-		using _Fx_Big::operator();  //reuses the Fx's of the base class
+        //specializations:
+        using _Fx_Big::operator();  //reuses the Fx's of the base class
 
-		void operator() (Rectangle &p, Ellipse   &q) { _collide(p,q, "fRE -modified"); }
-		void operator() (Ellipse   &p, Rectangle &q) { _collide(p,q, "fER -new"); }
-	};
+        void operator() (Rectangle &p, Ellipse   &q) { _collide(p,q, "fRE -modified"); }
+        void operator() (Ellipse   &p, Rectangle &q) { _collide(p,q, "fER -new"); }
+    };
 }
 using Collide_Bigger = vane::multi_func <detail::_Fx_Bigger>;
 
@@ -109,89 +109,89 @@ using Collide_Bigger = vane::multi_func <detail::_Fx_Bigger>;
 struct Polygon : Shape { Polygon (const char *c = "polygon") : Shape(c) {} };
 
 namespace detail {
-	struct _Fx_Bong : protected _ShapeCollision
-	{
-		_Fx_Bong (const char *version="collide bong") : _ShapeCollision(version) {}
+    struct _Fx_Bong : protected _ShapeCollision
+    {
+        _Fx_Bong (const char *version="collide bong") : _ShapeCollision(version) {}
 
-		using _ShapeCollision::type;
+        using _ShapeCollision::type;
 
-		using domains = std::tuple <	//different domains than the formers
-						std::tuple <Rectangle, Ellipse, Polygon>,
-						std::tuple <Rectangle, Ellipse, Polygon>
-						>;
+        using domains = std::tuple <    //different domains than the formers
+                        std::tuple <Rectangle, Ellipse, Polygon>,
+                        std::tuple <Rectangle, Ellipse, Polygon>
+                        >;
 
-		//specializations; a whole new set of Fx's
-		void operator() (Rectangle &p, Rectangle &q) { _collide(p,q, "fRR -compatible behavior"); }
-		void operator() (Ellipse   &p, Ellipse   &q) { _collide(p,q, "fEE -compatible behavior"); }
-		void operator() (Rectangle &p, Ellipse   &q) { _collide(p,q, "fRE -redefined  behavior"); }
-		void operator() (Ellipse   &p, Rectangle &q) { _collide(p,q, "fER -redefined  behavior"); }
+        //specializations; a whole new set of Fx's
+        void operator() (Rectangle &p, Rectangle &q) { _collide(p,q, "fRR -compatible behavior"); }
+        void operator() (Ellipse   &p, Ellipse   &q) { _collide(p,q, "fEE -compatible behavior"); }
+        void operator() (Rectangle &p, Ellipse   &q) { _collide(p,q, "fRE -redefined  behavior"); }
+        void operator() (Ellipse   &p, Rectangle &q) { _collide(p,q, "fER -redefined  behavior"); }
 
-		void operator() (Rectangle &p, Polygon   &q) { _collide(p,q, "fRP -new");   }
-		void operator() (Ellipse   &p, Polygon   &q) { _collide(p,q, "fEP -new");   }
-	};
+        void operator() (Rectangle &p, Polygon   &q) { _collide(p,q, "fRP -new");   }
+        void operator() (Ellipse   &p, Polygon   &q) { _collide(p,q, "fEP -new");   }
+    };
 }
-vane::multi_func <detail::_Fx_Bong>  collide_bong;	//as a global function
+vane::multi_func <detail::_Fx_Bong>  collide_bong;  //as a global function
 
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
 void big_bang(Collide_func  &collide) {
-	puts("---------------------------------------------------------------big bang");
-	Rectangle  r;
-	Ellipse	   e;
+    puts("---------------------------------------------------------------big bang");
+    Rectangle  r;
+    Ellipse    e;
 
-	collide (r, r);
-	collide (e, e);
-	collide (r, e);
+    collide (r, r);
+    collide (e, e);
+    collide (r, e);
 }
  
 void bigger_bang (Collide_func  &collide) {
-	puts("---------------------------------------------------------------bigger bang");
-	Rectangle  r;
-	Ellipse	   e;
-	Polygon	   p;
+    puts("---------------------------------------------------------------bigger bang");
+    Rectangle  r;
+    Ellipse    e;
+    Polygon    p;
 
-	collide (r, r);
-	collide (e, e);
-	collide (r, e);
-	collide (e, r);
+    collide (r, r);
+    collide (e, e);
+    collide (r, e);
+    collide (e, r);
 }
 
 void big_bong(Collide_func  &collide) {
-	puts("---------------------------------------------------------------big bong");
-	Rectangle  r;
-	Ellipse	   e;
-	Polygon	   p;
+    puts("---------------------------------------------------------------big bong");
+    Rectangle  r;
+    Ellipse    e;
+    Polygon    p;
 
-	collide (r, r);
-	collide (e, e);
-	collide (r, e);
-	collide (e, r);
+    collide (r, r);
+    collide (e, e);
+    collide (r, e);
+    collide (e, r);
 
-	collide (r, p);
-	collide (e, p);
+    collide (r, p);
+    collide (e, p);
 }
 
 
-#define	____  puts("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+#define ____  puts("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 int main() try
 {
-	vane::mf_init();
+    vane::mf_init();
 
-	Collide_Big     collide_big;
-	Collide_Bigger  collide_bigger;
+    Collide_Big     collide_big;
+    Collide_Bigger  collide_bigger;
 
-	printf("%15s%36s","real args","fx called");
+    printf("%15s%36s","real args","fx called");
 ____
-	big_bang    (collide_big);
+    big_bang    (collide_big);
 ____
-	bigger_bang (collide_bigger);
-	big_bang    (collide_bigger);
+    bigger_bang (collide_bigger);
+    big_bang    (collide_bigger);
 ____
-	big_bong    (collide_bong);
-	bigger_bang (collide_bong);
-	big_bang    (collide_bong);
+    big_bong    (collide_bong);
+    bigger_bang (collide_bong);
+    big_bang    (collide_bong);
 }
 catch(const std::exception &e) { printf("\nexception: %s", e.what());  }
 
@@ -266,9 +266,9 @@ catch(const std::exception &e) { printf("\nexception: %s", e.what());  }
 
 
 struct Shape {
-	virtual ~Shape() {}   //polymorphic base is required
-	Shape(const char *c = "shape") : name(c) {}
-	const char *name;
+    virtual ~Shape() {}   //polymorphic base is required
+    Shape(const char *c = "shape") : name(c) {}
+    const char *name;
 };
 
 using VShape       = vane::virtual_<Shape>;
@@ -280,24 +280,24 @@ using Collide_func = vane::virtual_func <void(VShape*, VShape*)>;
 ////////////////////////////////////////////////////////////////////////////////
 /* inheritance hierarchy
 
-		   / Rectangle
-	Shape +- Ellipse
-		   \ Polygon
+           / Rectangle
+    Shape +- Ellipse
+           \ Polygon
 
-	_ShapeCollision +- _Fx_Big --- _Fx_Bigger
-					 \ _Fx_Bong
+    _ShapeCollision +- _Fx_Big --- _Fx_Bigger
+                     \ _Fx_Bong
 */
 ////////////////////////////////////////////////////////////////////////////////
 struct _ShapeCollision
 {
-	using type = Collide_func::type;	//function's type
+    using type = Collide_func::type;    //function's type
 
-	_ShapeCollision(const char *version) : api_version(version) {}
-	const char *api_version;
+    _ShapeCollision(const char *version) : api_version(version) {}
+    const char *api_version;
 
-	void _collide(Shape *p, Shape *q, const char *tag) {  //util function
-		printf("(%-9s %9s) --> %14s::%s\n", p->name, q->name, api_version, tag);
-	}
+    void _collide(Shape *p, Shape *q, const char *tag) {  //util function
+        printf("(%-9s %9s) --> %14s::%s\n", p->name, q->name, api_version, tag);
+    }
 };
 
 
@@ -309,22 +309,22 @@ struct Rectangle : Shape { Rectangle(const char *c = "rectangle") : Shape(c) {} 
 struct Ellipse   : Shape { Ellipse  (const char *c = "ellipse"  ) : Shape(c) {} };
 
 namespace detail {
-	struct _Fx_Big : protected _ShapeCollision
-	{
-		_Fx_Big (const char *version="collide big") : _ShapeCollision(version) {}
+    struct _Fx_Big : protected _ShapeCollision
+    {
+        _Fx_Big (const char *version="collide big") : _ShapeCollision(version) {}
 
-		using _ShapeCollision::type;	//function's type
+        using _ShapeCollision::type;    //function's type
 
-		using domains = std::tuple <  	//argument type domains
-						std::tuple <Rectangle, Ellipse>,
-						std::tuple <Rectangle, Ellipse>
-						>;
+        using domains = std::tuple <    //argument type domains
+                        std::tuple <Rectangle, Ellipse>,
+                        std::tuple <Rectangle, Ellipse>
+                        >;
 
-		//specializations: Fx's
-		void operator() (Rectangle *p, Rectangle *q) { _collide(p,q, "fRR"); }
-		void operator() (Ellipse   *p, Ellipse   *q) { _collide(p,q, "fEE"); }
-		void operator() (Rectangle *p, Ellipse   *q) { _collide(p,q, "fRE"); }
-	};
+        //specializations: Fx's
+        void operator() (Rectangle *p, Rectangle *q) { _collide(p,q, "fRR"); }
+        void operator() (Ellipse   *p, Ellipse   *q) { _collide(p,q, "fEE"); }
+        void operator() (Rectangle *p, Ellipse   *q) { _collide(p,q, "fRE"); }
+    };
 }
 using Collide_Big = vane::multi_func <detail::_Fx_Big>;
 
@@ -333,19 +333,19 @@ using Collide_Big = vane::multi_func <detail::_Fx_Big>;
 ////////////////////////////////////////////////////////////////////////////////
 //Bigger Collision
 namespace detail {
-	struct _Fx_Bigger : protected _Fx_Big
-	{
-		_Fx_Bigger (const char *ver="collide bigger") : _Fx_Big(ver) {}
+    struct _Fx_Bigger : protected _Fx_Big
+    {
+        _Fx_Bigger (const char *ver="collide bigger") : _Fx_Big(ver) {}
 
-		using _Fx_Big::type;
-		using _Fx_Big::domains;  //use the same domains
+        using _Fx_Big::type;
+        using _Fx_Big::domains;  //use the same domains
 
-		//specializations:
-		using _Fx_Big::operator();  //reuses the Fx's of the base class
+        //specializations:
+        using _Fx_Big::operator();  //reuses the Fx's of the base class
 
-		void operator() (Rectangle *p, Ellipse   *q) { _collide(p,q, "fRE -modified"); }
-		void operator() (Ellipse   *p, Rectangle *q) { _collide(p,q, "fER -added"); }
-	};
+        void operator() (Rectangle *p, Ellipse   *q) { _collide(p,q, "fRE -modified"); }
+        void operator() (Ellipse   *p, Rectangle *q) { _collide(p,q, "fER -added"); }
+    };
 }
 using Collide_Bigger = vane::multi_func <detail::_Fx_Bigger>;
 
@@ -358,88 +358,88 @@ using Collide_Bigger = vane::multi_func <detail::_Fx_Bigger>;
 struct Polygon : Shape { Polygon (const char *c = "polygon") : Shape(c) {} };
 
 namespace detail {
-	struct _Fx_Bong : protected _ShapeCollision
-	{
-		_Fx_Bong (const char *version="collide bong") : _ShapeCollision(version) {}
+    struct _Fx_Bong : protected _ShapeCollision
+    {
+        _Fx_Bong (const char *version="collide bong") : _ShapeCollision(version) {}
 
-		using _ShapeCollision::type;
+        using _ShapeCollision::type;
 
-		using domains = std::tuple <	//different domains than the formers
-						std::tuple <Rectangle, Ellipse, Polygon>,
-						std::tuple <Rectangle, Ellipse, Polygon>
-						>;
+        using domains = std::tuple <    //different domains than the formers
+                        std::tuple <Rectangle, Ellipse, Polygon>,
+                        std::tuple <Rectangle, Ellipse, Polygon>
+                        >;
 
-		//specializations; a whole new set of Fx's
-		void operator() (Rectangle *p, Rectangle *q) { _collide(p,q, "fRR -compatible behavior"); }
-		void operator() (Ellipse   *p, Ellipse   *q) { _collide(p,q, "fEE -compatible behavior"); }
-		void operator() (Rectangle *p, Ellipse   *q) { _collide(p,q, "fRE -redefined  behavior"); }
-		void operator() (Ellipse   *p, Rectangle *q) { _collide(p,q, "fER -redefined  behavior"); }
+        //specializations; a whole new set of Fx's
+        void operator() (Rectangle *p, Rectangle *q) { _collide(p,q, "fRR -compatible behavior"); }
+        void operator() (Ellipse   *p, Ellipse   *q) { _collide(p,q, "fEE -compatible behavior"); }
+        void operator() (Rectangle *p, Ellipse   *q) { _collide(p,q, "fRE -redefined  behavior"); }
+        void operator() (Ellipse   *p, Rectangle *q) { _collide(p,q, "fER -redefined  behavior"); }
 
-		void operator() (Rectangle *p, Polygon   *q) { _collide(p,q, "fRP -new");   }
-		void operator() (Ellipse   *p, Polygon   *q) { _collide(p,q, "fEP -new");   }
-	};
+        void operator() (Rectangle *p, Polygon   *q) { _collide(p,q, "fRP -new");   }
+        void operator() (Ellipse   *p, Polygon   *q) { _collide(p,q, "fEP -new");   }
+    };
 }
-vane::multi_func <detail::_Fx_Bong>  collide_bong;	//as a global function
+vane::multi_func <detail::_Fx_Bong>  collide_bong;  //as a global function
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
 void big_bang(Collide_func  &collide) {
-	puts("---------------------------------------------------------------big bang");
-	VShape::of<Rectangle>  r;
-	VShape::of<Ellipse>    e;
+    puts("---------------------------------------------------------------big bang");
+    VShape::of<Rectangle>  r;
+    VShape::of<Ellipse>    e;
 
-	collide (&r, &r);
-	collide (&e, &e);
-	collide (&r, &e);
+    collide (&r, &r);
+    collide (&e, &e);
+    collide (&r, &e);
 }
  
 void bigger_bang (Collide_func  &collide) {
-	puts("---------------------------------------------------------------bigger bang");
-	VShape::of<Rectangle>  r;
-	VShape::of<Ellipse>    e;
-	VShape::of<Polygon>    p;
+    puts("---------------------------------------------------------------bigger bang");
+    VShape::of<Rectangle>  r;
+    VShape::of<Ellipse>    e;
+    VShape::of<Polygon>    p;
 
-	collide (&r, &r);
-	collide (&e, &e);
-	collide (&r, &e);
-	collide (&e, &r);
+    collide (&r, &r);
+    collide (&e, &e);
+    collide (&r, &e);
+    collide (&e, &r);
 }
 
 void big_bong(Collide_func  &collide) {
-	puts("---------------------------------------------------------------big bong");
-	VShape::of<Rectangle>  r;
-	VShape::of<Ellipse>	   e;
-	VShape::of<Polygon>	   p;
+    puts("---------------------------------------------------------------big bong");
+    VShape::of<Rectangle>  r;
+    VShape::of<Ellipse>    e;
+    VShape::of<Polygon>    p;
 
-	collide (&r, &r);
-	collide (&e, &e);
-	collide (&r, &e);
-	collide (&e, &r);
+    collide (&r, &r);
+    collide (&e, &e);
+    collide (&r, &e);
+    collide (&e, &r);
 
-	collide (&r, &p);
-	collide (&e, &p);
+    collide (&r, &p);
+    collide (&e, &p);
 }
 
 
-#define	____  puts("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+#define ____  puts("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 int main() try
 {
-	vane::mf_init();
+    vane::mf_init();
 
-	Collide_Big     collide_big;
-	Collide_Bigger  collide_bigger;
+    Collide_Big     collide_big;
+    Collide_Bigger  collide_bigger;
 
-	printf("%15s%36s","real args","fx called");
+    printf("%15s%36s","real args","fx called");
 ____
-	big_bang    (collide_big);
+    big_bang    (collide_big);
 ____
-	bigger_bang (collide_bigger);
-	big_bang    (collide_bigger);
+    bigger_bang (collide_bigger);
+    big_bang    (collide_bigger);
 ____
-	big_bong    (collide_bong);
-	bigger_bang (collide_bong);
-	big_bang    (collide_bong);
+    big_bong    (collide_bong);
+    bigger_bang (collide_bong);
+    big_bang    (collide_bong);
 }
 catch(const std::exception &e) { printf("\nexception: %s", e.what());  }
 
@@ -523,21 +523,21 @@ using Collide_func = vane::virtual_func <void(VShape&, VShape&)>;
 ////////////////////////////////////////////////////////////////////////////////
 /* inheritance hierarchy
 
-	_ShapeCollision +- _Fx_Big --- _Fx_Bigger
-					 \ _Fx_Bong
+    _ShapeCollision +- _Fx_Big --- _Fx_Bigger
+                     \ _Fx_Bong
 */
 ////////////////////////////////////////////////////////////////////////////////
 struct _ShapeCollision
 {
-	using type = void (VShape&, VShape&);  //function's type
+    using type = void (VShape&, VShape&);  //function's type
 
-	template <typename Shape1, typename Shape2>
-	void _collide(Shape1 &p, Shape2 &q, const char *tag) {	//util function
-		printf("(%-9s %9s) --> %14s::%s\n", p.name, q.name, api_version, tag);
-	}
+    template <typename Shape1, typename Shape2>
+    void _collide(Shape1 &p, Shape2 &q, const char *tag) {  //util function
+        printf("(%-9s %9s) --> %14s::%s\n", p.name, q.name, api_version, tag);
+    }
 
-	const char *api_version;
-	_ShapeCollision(const char *version) : api_version(version) {}
+    const char *api_version;
+    _ShapeCollision(const char *version) : api_version(version) {}
 };
 
 
@@ -549,22 +549,22 @@ struct Rectangle  { const char *name = "rectangle"; };
 struct Ellipse    { const char *name = "ellipse";   };
 
 namespace detail {
-	struct _Fx_Big : protected _ShapeCollision
-	{
-		_Fx_Big (const char *version="collide big") : _ShapeCollision(version) {}
+    struct _Fx_Big : protected _ShapeCollision
+    {
+        _Fx_Big (const char *version="collide big") : _ShapeCollision(version) {}
 
-		using _ShapeCollision::type;	//function's type
+        using _ShapeCollision::type;    //function's type
 
-		using domains = std::tuple <  	//argument type domains
-						std::tuple <Rectangle, Ellipse>,
-						std::tuple <Rectangle, Ellipse>
-						>;
+        using domains = std::tuple <    //argument type domains
+                        std::tuple <Rectangle, Ellipse>,
+                        std::tuple <Rectangle, Ellipse>
+                        >;
 
-		//specializations: Fx's
-		void operator() (Rectangle &p, Rectangle &q) { _collide(p,q, "fRR"); }
-		void operator() (Ellipse   &p, Ellipse   &q) { _collide(p,q, "fEE"); }
-		void operator() (Rectangle &p, Ellipse   &q) { _collide(p,q, "fRE"); }
-	};
+        //specializations: Fx's
+        void operator() (Rectangle &p, Rectangle &q) { _collide(p,q, "fRR"); }
+        void operator() (Ellipse   &p, Ellipse   &q) { _collide(p,q, "fEE"); }
+        void operator() (Rectangle &p, Ellipse   &q) { _collide(p,q, "fRE"); }
+    };
 }
 using Collide_Big = vane::multi_func <detail::_Fx_Big>;
 
@@ -573,19 +573,19 @@ using Collide_Big = vane::multi_func <detail::_Fx_Big>;
 ////////////////////////////////////////////////////////////////////////////////
 //Bigger Collision
 namespace detail {
-	struct _Fx_Bigger : protected _Fx_Big
-	{
-		_Fx_Bigger (const char *ver="collide bigger") : _Fx_Big(ver) {}
+    struct _Fx_Bigger : protected _Fx_Big
+    {
+        _Fx_Bigger (const char *ver="collide bigger") : _Fx_Big(ver) {}
 
-		using _Fx_Big::type;
-		using _Fx_Big::domains;  //use the same domains
+        using _Fx_Big::type;
+        using _Fx_Big::domains;  //use the same domains
 
-		//specializations:
-		using _Fx_Big::operator();  //reuses the Fx's of the base class
+        //specializations:
+        using _Fx_Big::operator();  //reuses the Fx's of the base class
 
-		void operator() (Rectangle &p, Ellipse   &q) { _collide(p,q, "fRE -modified"); }
-		void operator() (Ellipse   &p, Rectangle &q) { _collide(p,q, "fER -new");      }
-	};
+        void operator() (Rectangle &p, Ellipse   &q) { _collide(p,q, "fRE -modified"); }
+        void operator() (Ellipse   &p, Rectangle &q) { _collide(p,q, "fER -new");      }
+    };
 }
 using Collide_Bigger = vane::multi_func <detail::_Fx_Bigger>;
 
@@ -598,89 +598,89 @@ using Collide_Bigger = vane::multi_func <detail::_Fx_Bigger>;
 struct Polygon    { const char *name = "polygon";   };
 
 namespace detail {
-	struct _Fx_Bong : protected _ShapeCollision
-	{
-		_Fx_Bong (const char *version="collide bong") : _ShapeCollision(version) {}
+    struct _Fx_Bong : protected _ShapeCollision
+    {
+        _Fx_Bong (const char *version="collide bong") : _ShapeCollision(version) {}
 
-		using _ShapeCollision::type;
+        using _ShapeCollision::type;
 
-		using domains = std::tuple <	//different domains than the formers
-						std::tuple <Rectangle, Ellipse, Polygon>,
-						std::tuple <Rectangle, Ellipse, Polygon>
-						>;
+        using domains = std::tuple <    //different domains than the formers
+                        std::tuple <Rectangle, Ellipse, Polygon>,
+                        std::tuple <Rectangle, Ellipse, Polygon>
+                        >;
 
-		//specializations; a whole new set of Fx's
-		void operator() (Rectangle &p, Rectangle &q) { _collide(p,q, "fRR -compatible behavior"); }
-		void operator() (Ellipse   &p, Ellipse   &q) { _collide(p,q, "fEE -compatible behavior"); }
-		void operator() (Rectangle &p, Ellipse   &q) { _collide(p,q, "fRE -redefined  behavior"); }
-		void operator() (Ellipse   &p, Rectangle &q) { _collide(p,q, "fER -redefined  behavior"); }
+        //specializations; a whole new set of Fx's
+        void operator() (Rectangle &p, Rectangle &q) { _collide(p,q, "fRR -compatible behavior"); }
+        void operator() (Ellipse   &p, Ellipse   &q) { _collide(p,q, "fEE -compatible behavior"); }
+        void operator() (Rectangle &p, Ellipse   &q) { _collide(p,q, "fRE -redefined  behavior"); }
+        void operator() (Ellipse   &p, Rectangle &q) { _collide(p,q, "fER -redefined  behavior"); }
 
-		void operator() (Rectangle &p, Polygon   &q) { _collide(p,q, "fRP -new");   }
-		void operator() (Ellipse   &p, Polygon   &q) { _collide(p,q, "fEP -new");   }
-	};
+        void operator() (Rectangle &p, Polygon   &q) { _collide(p,q, "fRP -new");   }
+        void operator() (Ellipse   &p, Polygon   &q) { _collide(p,q, "fEP -new");   }
+    };
 }
-vane::multi_func <detail::_Fx_Bong>  collide_bong;	//as a global function
+vane::multi_func <detail::_Fx_Bong>  collide_bong;  //as a global function
 
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
 void big_bang(Collide_func  &collide) {
-	puts("---------------------------------------------------------------big bang");
-	VShape::of<Rectangle>  r;
-	VShape::of<Ellipse>    e;
+    puts("---------------------------------------------------------------big bang");
+    VShape::of<Rectangle>  r;
+    VShape::of<Ellipse>    e;
 
-	collide (r, r);
-	collide (e, e);
-	collide (r, e);
+    collide (r, r);
+    collide (e, e);
+    collide (r, e);
 }
  
 void bigger_bang (Collide_func  &collide) {
-	puts("---------------------------------------------------------------bigger bang");
-	VShape::of<Rectangle>  r;
-	VShape::of<Ellipse>    e;
-	VShape::of<Polygon>    p;
+    puts("---------------------------------------------------------------bigger bang");
+    VShape::of<Rectangle>  r;
+    VShape::of<Ellipse>    e;
+    VShape::of<Polygon>    p;
 
-	collide (r, r);
-	collide (e, e);
-	collide (r, e);
-	collide (e, r);
+    collide (r, r);
+    collide (e, e);
+    collide (r, e);
+    collide (e, r);
 }
 
 void big_bong(Collide_func  &collide) {
-	puts("---------------------------------------------------------------big bong");
-	VShape::of<Rectangle>  r;
-	VShape::of<Ellipse>	   e;
-	VShape::of<Polygon>	   p;
+    puts("---------------------------------------------------------------big bong");
+    VShape::of<Rectangle>  r;
+    VShape::of<Ellipse>    e;
+    VShape::of<Polygon>    p;
 
-	collide (r, r);
-	collide (e, e);
-	collide (r, e);
-	collide (e, r);
+    collide (r, r);
+    collide (e, e);
+    collide (r, e);
+    collide (e, r);
 
-	collide (r, p);
-	collide (e, p);
+    collide (r, p);
+    collide (e, p);
 }
 
 
-#define	____  puts("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+#define ____  puts("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 int main() try
 {
-	vane::mf_init();
+    vane::mf_init();
 
-	Collide_Big     collide_big;
-	Collide_Bigger  collide_bigger;
+    Collide_Big     collide_big;
+    Collide_Bigger  collide_bigger;
 
-	printf("%15s%36s","real args","fx called");
+    printf("%15s%36s","real args","fx called");
 ____
-	big_bang    (collide_big);
+    big_bang    (collide_big);
 ____
-	bigger_bang (collide_bigger);
-	big_bang    (collide_bigger);
+    bigger_bang (collide_bigger);
+    big_bang    (collide_bigger);
 ____
-	big_bong    (collide_bong);
-	bigger_bang (collide_bong);
-	big_bang    (collide_bong);
+    big_bong    (collide_bong);
+    bigger_bang (collide_bong);
+    big_bang    (collide_bong);
 }
 catch(const std::exception &e) { printf("\nexception: %s", e.what());  }
 
