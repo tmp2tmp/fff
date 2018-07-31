@@ -72,7 +72,7 @@ struct Hello : Base { };
 struct World : Base { };
 
 
-//////////////////////////////////////////////////////////////////////////////// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+////////////////////////////////////////////////////////////////////////////////
 //co-class: 
 //     defines the traits & function set for the multi_func
 struct Fx
@@ -84,7 +84,7 @@ struct Fx
 
     //argument type selectors:  eventually confines the specialized function set
     using domains = tuple<
-        tuple <Base, Hello, World> //types that the virtual parameter Base&& can be of
+        tuple <Base, Hello, World> //types that the virtual parameter `Base&&' can be of
         >;
 
     //argument-type-specialized functions:
@@ -122,21 +122,38 @@ catch(const std::exception &e) { printf("\nexception : %s", e.what()); }
 
 
 /* output **********************************************************************
-        func --> Base?
-        func --> Base?
-  multi_func --> Hello 
-  multi_func --> World 
-virtual_func --> Hello 
-virtual_func --> World 
+          fx --> Base?
+          fx --> Base?
+  multi_func --> Hello
+  multi_func --> World
+virtual_func --> Hello
+virtual_func --> World
 */
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```c++
 //file: hello_world-virt.cc
 #include "vane.h"   //required
-using vane::virtual_;
+using vane::virtual_;   //virtual parameter type
 
-struct Base         { virtual ~Base(){} };  //required: polymorphic base
+struct Base         { virtual ~Base(){} };   //required: polymorphic base
 struct Hello : Base { };
 struct World : Base { };
 
@@ -204,8 +221,25 @@ catch(const std::exception &e) { printf("\nexception : %s", e.what()); }
   multi_func --> World
 virtual_func --> Hello
 virtual_func --> World
-*/ 
+*/
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```c++
 //file: hello_world-var.cc
@@ -217,7 +251,7 @@ using std::tuple;
 struct Hello { };
 struct World { };
 
-using var = vane::var<>;    //anonymous var<>
+using var = vane::var<>;    //anonymous var<> : as a virtual parameter type
 
 ////////////////////////////////////////////////////////////////////////////////
 //co-class: 
@@ -230,8 +264,9 @@ struct Fx
                      //    *, &, && types are supported
 
     //argument type selectors:  eventually confines the specialized function set
-    using domains = tuple<
-        tuple <Hello, World, int, std::string> //types which the virtual parameter `var&' can have
+    using domains = tuple<   //types which the virtual parameter `var&' can have
+        tuple <Hello, World,
+               int, std::string>    //var<> can have arbitray types
         >;
 
     //argument-type-specialized functions:
@@ -307,7 +342,7 @@ virtual_func (hello ) --> Hello
 virtual_func (world ) --> World 
 virtual_func (number) --> 3
 virtual_func (string) --> ways of multi-functioning
-*/ 
+*/
 ```
 
 
