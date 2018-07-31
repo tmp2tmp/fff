@@ -5,161 +5,76 @@
 ```c++
 //file: collide-poly.cc
 #include "vane.h"   //required
-#include <stdio.h>
 #define ____    printf("\n----------------------------------------");
-using std::tuple;
 
 
-
+//one common base class
 struct Shape {    const char *n;
                   virtual ~Shape() {}   //polymorphic base is required
                            Shape    (const char *c = "shape"    ) : n(c)     {} };
+//derivatives
 struct Rectangle : Shape { Rectangle(const char *c = "rectangle") : Shape(c) {} };
 struct Ellipse   : Shape { Ellipse  (const char *c = "ellipse"  ) : Shape(c) {} };
 struct Polygon   : Shape { Polygon  (const char *c = "polygon"  ) : Shape(c) {} };
 
 
-////////////////////////////////////////////////////////////////////////////////
-namespace detail {
-    //co-class that defines the traits & function set for the multi_func
-    struct Fx
-    {
-        using type    = void (Shape*, Shape*);   //signature of the multi_func
-
-        using domains = tuple<  //specialization confiner
-                            tuple <Rectangle, Ellipse, Polygon>,
-                            tuple <Rectangle, Ellipse, Polygon>
-                        >;
-        //specializations
-        void operator() (Rectangle *p, Rectangle *q) { printf("\n(%-9s %9s) --> fRR", p->n, q->n);   }
-        void operator() (Rectangle *p, Ellipse   *q) { printf("\n(%-9s %9s) --> fRE !!", p->n, q->n);}
-        void operator() (Rectangle *p, Polygon   *q) { printf("\n(%-9s %9s) --> fRP", p->n, q->n);   }
-        void operator() (Ellipse   *p, Ellipse   *q) { printf("\n(%-9s %9s) --> fEE", p->n, q->n);   }
-        void operator() (Ellipse   *p, Polygon   *q) { printf("\n(%-9s %9s) --> fEP", p->n, q->n);   }
-        void operator() (Polygon   *p, Polygon   *q) { printf("\n(%-9s %9s) --> fPP", p->n, q->n);   }
-    };
-}
-using collide_multi_func = vane::multi_func <detail::Fx>;
+using Collide_Func = vane::virtual_func <void (const Shape&, const Shape&)>;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-
-void test_call_uniformTyped (collide_multi_func *vfunc, Shape *p, Shape *q)
-try {
-    (*vfunc)( p, q );
-}
-catch(const std::exception &e) { printf("\nexception: %s", e.what());  }
-
-
-int main()
+void big_bang (Collide_Func &collide)
 {
-    collide_multi_func  collide;
-
     Rectangle  r;
     Ellipse    e;
     Polygon    p;
 
     printf("%15s%20s","real args","fx called");
-    test_call_uniformTyped (&collide, &r, &r);
-    test_call_uniformTyped (&collide, &r, &e);
-    test_call_uniformTyped (&collide, &r, &p);
-    test_call_uniformTyped (&collide, &e, &e);
-    test_call_uniformTyped (&collide, &e, &p);
-    test_call_uniformTyped (&collide, &p, &p);
 
+    collide (r, r);
+    collide (r, e);
+    collide (r, p);
+    collide (e, e);
+    collide (e, p);
+    collide (p, p);
 ____
     struct Square : Rectangle { Square() : Rectangle("~SQUARE~") {}; };
-    Square  square;
+    Square square;
 
-    test_call_uniformTyped (&collide, &square, &e);   //fRE !! -- Rectangle-Ellipse
+    collide (square, e);   //fRE !! -- Rectangle-Ellipse
 }
-
-
-/* output **********************************************************************
-      real args           fx called
-(rectangle rectangle) --> fRR
-(rectangle   ellipse) --> fRE !!
-(rectangle   polygon) --> fRP
-(ellipse     ellipse) --> fEE
-(ellipse     polygon) --> fEP
-(polygon     polygon) --> fPP
-----------------------------------------
-(~SQUARE~    ellipse) --> fRE !!
-*/
-```
-
-```c++
-//file: collide-virt.cc
-#include "vane.h"   //required
-#include <stdio.h>
-#define ____    printf("\n----------------------------------------");
-using std::tuple;
-
-
-struct Shape {    const char *n;
-                  virtual ~Shape() {}   //polymorphic base is required
-                           Shape    (const char *c = "shape"    ) : n(c)     {} };
-struct Rectangle : Shape { Rectangle(const char *c = "rectangle") : Shape(c) {} };
-struct Ellipse   : Shape { Ellipse  (const char *c = "ellipse"  ) : Shape(c) {} };
-struct Polygon   : Shape { Polygon  (const char *c = "polygon"  ) : Shape(c) {} };
-
-using VirtualShape = vane::_virtual <Shape>;
 
 
 ////////////////////////////////////////////////////////////////////////////////
 namespace detail {
-    //co-class that defines the traits & function set for the multi_func
-    struct Fx
+    struct Fx  //co-class that defines the traits & function set for the multi_func
     {
-        using type    = void (VirtualShape*, VirtualShape*);   //signature of the virtual function
+        using type    = void (const Shape&, const Shape&);   //signature of the multi_func
+//   or using type    = Collide_Func::type;
 
-        using domains = tuple<  //specialization confiner
-                            tuple <Rectangle, Ellipse, Polygon>,
-                            tuple <Rectangle, Ellipse, Polygon>
+        using domains = std::tuple<  //specialization confiner
+                        std::tuple <Rectangle, Ellipse, Polygon>,   //for the 1st Shape*
+                        std::tuple <Rectangle, Ellipse, Polygon>    //for the 2nd Shape*
                         >;
+
         //specializations
-        void operator() (Rectangle *p, Rectangle *q) { printf("\n(%-9s %9s) --> fRR", p->n, q->n);   }
-        void operator() (Rectangle *p, Ellipse   *q) { printf("\n(%-9s %9s) --> fRE !!", p->n, q->n);}
-        void operator() (Rectangle *p, Polygon   *q) { printf("\n(%-9s %9s) --> fRP", p->n, q->n);   }
-        void operator() (Ellipse   *p, Ellipse   *q) { printf("\n(%-9s %9s) --> fEE", p->n, q->n);   }
-        void operator() (Ellipse   *p, Polygon   *q) { printf("\n(%-9s %9s) --> fEP", p->n, q->n);   }
-        void operator() (Polygon   *p, Polygon   *q) { printf("\n(%-9s %9s) --> fPP", p->n, q->n);   }
+        void operator() (const Rectangle &p, const Rectangle &q) { printf("\n(%-9s %9s) --> fRR",    p.n, q.n);}
+        void operator() (const Rectangle &p, const Ellipse   &q) { printf("\n(%-9s %9s) --> fRE !!", p.n, q.n);}
+        void operator() (const Rectangle &p, const Polygon   &q) { printf("\n(%-9s %9s) --> fRP",    p.n, q.n);}
+        void operator() (const Ellipse   &p, const Ellipse   &q) { printf("\n(%-9s %9s) --> fEE",    p.n, q.n);}
+        void operator() (const Ellipse   &p, const Polygon   &q) { printf("\n(%-9s %9s) --> fEP",    p.n, q.n);}
+        void operator() (const Polygon   &p, const Polygon   &q) { printf("\n(%-9s %9s) --> fPP",    p.n, q.n);}
     };
 }
-using collide_multi_func = vane::multi_func <detail::Fx>;
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-void test_call_uniformTyped (collide_multi_func *vfunc,  VirtualShape *p, VirtualShape *q)
-try {
-    (*vfunc)( p, q );
-}
-catch(const std::exception &e) { printf("\nexception: %s", e.what());  }
+using My_Collide_Func  = vane::multi_func <detail::Fx>;
 
 
 int main()
 {
-    collide_multi_func  collide;
+    vane::mf_init();
 
-    VirtualShape::of<Rectangle>  r;
-    VirtualShape::of<Ellipse>    e;
-    VirtualShape::of<Polygon>    p;
+    My_Collide_Func  collide;
 
-    printf("%15s%20s","real args","fx called");
-    test_call_uniformTyped (&collide, &r, &r);
-    test_call_uniformTyped (&collide, &r, &e);
-    test_call_uniformTyped (&collide, &r, &p);
-    test_call_uniformTyped (&collide, &e, &e);
-    test_call_uniformTyped (&collide, &e, &p);
-    test_call_uniformTyped (&collide, &p, &p);
-
-____
-    struct Square : Rectangle { Square() : Rectangle("~SQUARE~") {}; };
-    VirtualShape::of<Square>  square;
-
-    test_call_uniformTyped (&collide, &square, &e);   //fRE !! -- Rectangle-Ellipse
+    big_bang(collide);
 }
 
 
@@ -176,12 +91,130 @@ ____
 */
 ```
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```c++
-//file: collide-varg.cc
+//file: collide-virt.cc
 #include "vane.h"   //required
-#include <stdio.h>
 #define ____    printf("\n----------------------------------------");
-using std::tuple;
+
+
+//one common base class
+struct Shape {    const char *n;
+                  virtual ~Shape() {}   //polymorphic base is required
+                           Shape    (const char *c = "shape"    ) : n(c)     {} };
+//derivatives
+struct Rectangle : Shape { Rectangle(const char *c = "rectangle") : Shape(c) {} };
+struct Ellipse   : Shape { Ellipse  (const char *c = "ellipse"  ) : Shape(c) {} };
+struct Polygon   : Shape { Polygon  (const char *c = "polygon"  ) : Shape(c) {} };
+
+
+using VShape       = vane::virtual_<Shape>;
+using Collide_Func = vane::virtual_func <void (const VShape&, const VShape&)>;
+
+
+////////////////////////////////////////////////////////////////////////////////
+void big_bang (Collide_Func &collide)
+{
+    VShape::of<Rectangle>  r;
+    VShape::of<Ellipse>    e;
+    VShape::of<Polygon>    p;
+
+    printf("%15s%20s","real args","fx called");
+
+    collide (r, r);
+    collide (r, e);
+    collide (r, p);
+    collide (e, e);
+    collide (e, p);
+    collide (p, p);
+____
+    struct Square : Rectangle { Square() : Rectangle("~SQUARE~") {}; };
+    VShape::of<Square> square;
+
+    collide (square, e);   //fRE !! -- Rectangle-Ellipse
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+namespace detail {
+    struct Fx  //co-class that defines the traits & function set for the multi_func
+    {
+        using type    = void (const VShape&, const VShape&);   //signature of the virtual function
+//   or using type    = Collide_Func::type;
+
+        using domains = std::tuple<  //specialization confiner
+                        std::tuple <Rectangle, Ellipse, Polygon>,   //for the 1st Shape*
+                        std::tuple <Rectangle, Ellipse, Polygon>    //for the 2nd Shape*
+                        >;
+
+        //specializations
+        void operator() (const Rectangle &p, const Rectangle &q) { printf("\n(%-9s %9s) --> fRR",    p.n, q.n);}
+        void operator() (const Rectangle &p, const Ellipse   &q) { printf("\n(%-9s %9s) --> fRE !!", p.n, q.n);}
+        void operator() (const Rectangle &p, const Polygon   &q) { printf("\n(%-9s %9s) --> fRP",    p.n, q.n);}
+        void operator() (const Ellipse   &p, const Ellipse   &q) { printf("\n(%-9s %9s) --> fEE",    p.n, q.n);}
+        void operator() (const Ellipse   &p, const Polygon   &q) { printf("\n(%-9s %9s) --> fEP",    p.n, q.n);}
+        void operator() (const Polygon   &p, const Polygon   &q) { printf("\n(%-9s %9s) --> fPP",    p.n, q.n);}
+    };
+}
+using My_Collide_Func  = vane::multi_func <detail::Fx>;
+
+
+int main()
+{
+    vane::mf_init();
+
+    My_Collide_Func  collide;
+
+    big_bang(collide);
+}
+
+
+/* output **********************************************************************
+      real args           fx called
+(rectangle rectangle) --> fRR
+(rectangle   ellipse) --> fRE !!
+(rectangle   polygon) --> fRP
+(ellipse     ellipse) --> fEE
+(ellipse     polygon) --> fEP
+(polygon     polygon) --> fPP
+----------------------------------------
+(~SQUARE~    ellipse) --> fRE !!
+*/
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```c++
+//file: collide-var.cc
+#include "vane.h"   //required
+#define ____    printf("\n----------------------------------------");
 
 
 
@@ -190,63 +223,65 @@ struct Ellipse   { const char *n = "ellipse";   };
 struct Polygon   { const char *n = "polygon";   };
 
 
-using VirtualShape = vane::varg <Rectangle, Ellipse, Polygon>;
+struct Shape;
+using VShape       = vane::var<Shape>;   //`Shape' is just a tag like a hash-tag on social media
+using Collide_Func = vane::virtual_func <void (const VShape&, const VShape&)>;
+
+
+////////////////////////////////////////////////////////////////////////////////
+void big_bang (Collide_Func &collide)
+{
+    VShape::of<Rectangle>  r;
+    VShape::of<Ellipse>    e;
+    VShape::of<Polygon>    p;
+
+    printf("%15s%20s","real args","fx called");
+
+    collide (r, r);
+    collide (r, e);
+    collide (r, p);
+    collide (e, e);
+    collide (e, p);
+    collide (p, p);
+____
+    struct Square : Rectangle { Square() { n = "~SQUARE~"; } };
+    VShape::of<Square> square;
+
+    collide (square, e);   //fRE !! -- Rectangle-Ellipse
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
 namespace detail {
-    //co-class that defines the traits & function set for the multi_func
-    struct Fx
+    struct Fx  //co-class that defines the traits & function set for the multi_func
     {
-        using type    = void (VirtualShape*, VirtualShape*);   //signature of the virtual function
+        using type    = void (const VShape&, const VShape&);   //signature of the virtual function
+//   or using type    = Collide_Func::type;
 
-        using domains = tuple<  //specialization confiner
-                            tuple <Rectangle, Ellipse, Polygon>,
-                            tuple <Rectangle, Ellipse, Polygon>
+        using domains = std::tuple<  //specialization confiner
+                        std::tuple <Rectangle, Ellipse, Polygon>,   //for the 1st Shape*
+                        std::tuple <Rectangle, Ellipse, Polygon>    //for the 2nd Shape*
                         >;
+
         //specializations
-        void operator() (Rectangle *p, Rectangle *q) { printf("\n(%-9s %9s) --> fRR", p->n, q->n);   }
-        void operator() (Rectangle *p, Ellipse   *q) { printf("\n(%-9s %9s) --> fRE !!", p->n, q->n);}
-        void operator() (Rectangle *p, Polygon   *q) { printf("\n(%-9s %9s) --> fRP", p->n, q->n);   }
-        void operator() (Ellipse   *p, Ellipse   *q) { printf("\n(%-9s %9s) --> fEE", p->n, q->n);   }
-        void operator() (Ellipse   *p, Polygon   *q) { printf("\n(%-9s %9s) --> fEP", p->n, q->n);   }
-        void operator() (Polygon   *p, Polygon   *q) { printf("\n(%-9s %9s) --> fPP", p->n, q->n);   }
+        void operator() (const Rectangle &p, const Rectangle &q) { printf("\n(%-9s %9s) --> fRR",    p.n, q.n);}
+        void operator() (const Rectangle &p, const Ellipse   &q) { printf("\n(%-9s %9s) --> fRE !!", p.n, q.n);}
+        void operator() (const Rectangle &p, const Polygon   &q) { printf("\n(%-9s %9s) --> fRP",    p.n, q.n);}
+        void operator() (const Ellipse   &p, const Ellipse   &q) { printf("\n(%-9s %9s) --> fEE",    p.n, q.n);}
+        void operator() (const Ellipse   &p, const Polygon   &q) { printf("\n(%-9s %9s) --> fEP",    p.n, q.n);}
+        void operator() (const Polygon   &p, const Polygon   &q) { printf("\n(%-9s %9s) --> fPP",    p.n, q.n);}
     };
 }
-using collide_multi_func = vane::multi_func <detail::Fx>;
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-void test_call_uniformTyped (collide_multi_func *vfunc,  VirtualShape *p, VirtualShape *q)
-try {
-    (*vfunc)( p, q );
-}
-catch(const std::exception &e) { printf("\nexception: %s", e.what());  }
+using My_Collide_Func  = vane::multi_func <detail::Fx>;
 
 
 int main()
 {
-    collide_multi_func  collide;
+    vane::mf_init();
 
-    VirtualShape::of<Rectangle>  r;
-    VirtualShape::of<Ellipse>    e;
-    VirtualShape::of<Polygon>    p;
+    My_Collide_Func  collide;
 
-    printf("%15s%20s","real args","fx called");
-    test_call_uniformTyped (&collide, &r, &r);
-    test_call_uniformTyped (&collide, &r, &e);
-    test_call_uniformTyped (&collide, &r, &p);
-    test_call_uniformTyped (&collide, &e, &e);
-    test_call_uniformTyped (&collide, &e, &p);
-    test_call_uniformTyped (&collide, &p, &p);
-
-____
-    struct Square : Rectangle { Square() { n = "~SQUARE~"; } };
-    VirtualShape::of<Square>  square;
-
-    test_call_uniformTyped (&collide, &square, &e);   //fRE !! -- Rectangle-Ellipse
+    big_bang(collide);
 }
 
 
