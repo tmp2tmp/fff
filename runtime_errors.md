@@ -40,8 +40,6 @@ The co-class of a multi\_func
 ```c++
 //file: runtime_errors-poly.cc
 #include "vane.h"
-#include <stdio.h>
-using std::tuple;
 
 
 /* inheritance hierarchy:
@@ -63,9 +61,9 @@ struct Fx
 {
     using type = void (int&, const A&, const O&);   //type of the virtual function
 
-    using domains = tuple<      //type domains of the virtual parameters
-                    tuple<A,B>, //for A&
-                    tuple<X,Y>  //for O&
+    using domains = std::tuple <        //type domains of the virtual parameters
+                    std::tuple <A,B>,   //for A&
+                    std::tuple <X,Y>    //for O&
                     >;
     //specializatins:
     void operator()(int &i, const A &a, const Y &x) { printf("\n%3d| %c %c --> fAY", i++, a.n, x.n); }
@@ -178,8 +176,6 @@ real args    Fx called actually
 ```c++
 //file: runtime_errors-virt.cc
 #include "vane.h"
-#include <stdio.h>
-using std::tuple;
 
 
 /* inheritance hierarchy:
@@ -204,9 +200,9 @@ struct Fx
 {
     using type = void (int&, const VA&, const VO&);   //type of the virtual function
 
-    using domains = tuple<      //type domains of the virtual parameters
-                    tuple<A,B>, //for VA &
-                    tuple<X,Y>  //for VO &
+    using domains = std::tuple <        //type domains of the virtual parameters
+                    std::tuple <A,B>,   //for VA &
+                    std::tuple <X,Y>    //for VO &
                     >;
     //specializatins:
     void operator()(int &i, const A &a, const Y &x) { printf("\n%3d| %c %c --> fAY", i++, a.n, x.n); }
@@ -317,8 +313,6 @@ real args    Fx called actually
 ```c++
 //file: runtime_errors-var.cc
 #include "vane.h"
-#include <stdio.h>
-using std::tuple;
 
 
 /* inheritance hierarchy:
@@ -334,7 +328,7 @@ struct X : O    { X(char c='x') : O(c) {}   };
 struct Y : X    { Y(char c='y') : X(c) {}   };
 
 
-using var = vane::var<>;
+using var = vane::var<>;    //anonymous var<>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -342,9 +336,9 @@ struct Fx
 {
     using type = void (int&, const var&, const var&);   //type of the virtual function
 
-    using domains = tuple<          //type domains of the virtual parameters
-                        tuple<A,B>, //for the 1st parameter var&
-                        tuple<X,Y>  //for the 2nd parameter var&
+    using domains = std::tuple <        //type domains of the virtual parameters
+                    std::tuple <A,B>,   //for the 1st parameter var&
+                    std::tuple <X,Y>    //for the 2nd parameter var&
                     >;
     //specializatins:
     void operator()(int &i, const A &a, const Y &x) { printf("\n%3d| %c %c --> fAY", i++, a.n, x.n); }
