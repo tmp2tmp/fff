@@ -3,13 +3,13 @@
 /hello_world.html:
   code-width: 125ex
 /collide.html:
-  code-width: 121ex 
+  code-width: 131ex 
 /diamond.html:
   code-width: 113ex
 /replacing_virtual_functions.html:
   code-width: 118ex
 /covariant_return_types.html:
-  code-width: 98ex
+  code-width: 99ex
 /call_resolution.html:
   code-width: 112ex
 /make_shared.html:
