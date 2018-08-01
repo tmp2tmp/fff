@@ -34,9 +34,9 @@
         <header class="inner">
           <a id="forkme" href="{{ site.github.repository_url }}">View on GitHub</a>
 
-{% if page.url != "/" %}
+		{% if page.url != "/" %}
           <h1 id="project_title"><a href="{{ site.github.url }}">{{ site.title | default: site.github.repository_name }}</a></h1>
-{% endif %}
+		{% endif %}
           <h2 id="project_tagline">{{ page.description | default: site.github.project_tagline }}</h2>
 
           {% if site.show_downloads %}
@@ -58,11 +58,9 @@
         {{ content }}
       </section>
     </div>
+
 {% if page.url == "/" %}
-	<script>
-		//window.onload = (ev)=>{ vane.firstChild.href = 'https://github.com/tmp2tmp/fff' }
-		vane.firstChild.href = 'https://github.com/tmp2tmp/fff';
-	</script>
+	<script> vane.firstChild.href = 'https://github.com/tmp2tmp/fff'; </script>
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">
       <footer class="inner">
