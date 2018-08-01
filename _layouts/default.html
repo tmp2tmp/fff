@@ -13,12 +13,6 @@
 
 {% if page.url != "/" %}
 	<script src={{ "/assets/js/default.js" | prepend: site.baseurl }}></script>
-{% else %}
-	<script>
-		window.onload = (ev)=>{
-			vane.firstChild.href = 'https://github.com/tmp2tmp/fff';
-		}
-	</script>
 {% endif %}
 {% if site.data.params[page.url].code-width %}
     <style>PRE.highlight { width: {{ site.data.params[page.url].code-width }} !important}</style>
@@ -61,8 +55,11 @@
         {{ content }}
       </section>
     </div>
-
 {% if page.url == "/" %}
+	<script>
+		//window.onload = (ev)=>{ vane.firstChild.href = 'https://github.com/tmp2tmp/fff' }
+		vane.firstChild.href = 'https://github.com/tmp2tmp/fff';
+	</script>
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">
       <footer class="inner">
