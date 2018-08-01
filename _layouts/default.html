@@ -20,13 +20,15 @@
 {% if page.url == "/" %}
     <style> {% include front_page.css %} </style>
 {% endif %}
-
   </head>
+
 {% if page.url == "/" %}
   <body class='front_page'>
 {% else %}
   <body>
 {% endif %}
+
+{% if page.url != "/" %}
     <!-- HEADER -->
     <div id="header_wrap" class="outer">
         <header class="inner">
@@ -45,6 +47,7 @@
           {% endif %}
         </header>
     </div>
+{% endif %}
 
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
