@@ -15,9 +15,11 @@
 	<script src={{ "/assets/js/default.js" | prepend: site.baseurl }}></script>
 {% else %}
 	<script>
-		alert(vane);
-		alert(vane.firstChild);
-		vane.firstChild.href = 'https://github.com/tmp2tmp/fff';
+		window.onload = function(ev) {
+			alert(vane);
+			alert(vane.firstChild);
+			vane.firstChild.href = 'https://github.com/tmp2tmp/fff';
+		}
 	</script>
 {% endif %}
 {% if site.data.params[page.url].code-width %}
