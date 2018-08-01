@@ -15,9 +15,7 @@
 	<script src={{ "/assets/js/default.js" | prepend: site.baseurl }}></script>
 {% else %}
 	<script>
-		window.onload = function(ev) {
-			alert(vane);
-			alert(vane.firstChild);
+		window.onload = (ev)=>{
 			vane.firstChild.href = 'https://github.com/tmp2tmp/fff';
 		}
 	</script>
